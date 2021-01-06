@@ -1,14 +1,26 @@
+// AUTHOR: LeMonMOn
+// UPDATE: 2021/01/07
+// DESCRIPTION: This code is to simulating "nodes" movements in 2 dimensions spaces with
+// random-walking. If there are 2 nodes distanced less than MAX_DIST, they will add each
+// other to their own neigh_list. The nodes periodicly publish thier id and position to
+// the controller, and by the way request a service to find out its neighbour. And the 
+// controller collects information and judge the neighbours. This is the controller code.
+// Note: Make sure this node running after ALL the nodes created. If you want to add new
+// nodes, you should re-run all the programs.
+
+
 #include "ros/ros.h"
-#include "std_msgs/Float64MultiArray.h"
+// TO USE THIS, YOU SHOULD CONFIG THE INCLUDE PATH WITH YOUR SYSTEM
 #include "/home/lemonmon/catkin_ws/src/learning_parameter/src/Node.h"
 
+#include "learning_parameter/node_info.h"
 #include "learning_parameter/chk.h"
 
 #include <sstream>
 #include <vector>
 
 
-#define MAX_DIST2 4
+#define MAX_DIST2 9
 
 
 std::vector<int> id_table;
@@ -16,11 +28,11 @@ std::vector<double> pos_x_table;
 std::vector<double> pos_y_table;
 
 
-void sub_callback(const std_msgs::Float64MultiArray::ConstPtr& msg){
-  std::vector<double> rec_data = msg->data;
+void sub_callback(const learning_parameter::node_info::ConstPtr& msg){
+  std::vector<double> rec_data = msg->ad_info;
   int rec_id = (int)rec_data[0];
   double rec_x = rec_data[1], rec_y = rec_data[2];
-  //std::cout << "received:" << "(" << rec_id << ", " << rec_x << ", " << rec_y << ")" << std::endl;
+  // std::cout << "received:" << "(" << rec_id << ", " << rec_x << ", " << rec_y << ")" << std::endl;
   // update pos_table
   bool is_in_vec = false;
   for (int i = 0; i < id_table.size(); i++){
@@ -38,12 +50,6 @@ void sub_callback(const std_msgs::Float64MultiArray::ConstPtr& msg){
     pos_x_table.push_back(rec_x);
     pos_y_table.push_back(rec_y);
   }
-/*
-  for (int i = 0; i < id_table.size(); i++){
-    std::cout << id_table[i] << " " << pos_x_table[i] << " " << pos_y_table[i] << std::endl;
-  } 
-  std::cout << "-------------------" << std::endl;
-*/
 }
 
 
@@ -55,7 +61,7 @@ double cal_dist2(double x1, double y1, double x2, double y2){
 bool check_callback(learning_parameter::chk::Request& req,
               learning_parameter::chk::Response& res){
   // find corresponding index
-  std::cout << req.node_id << std::endl;
+  std::cout << "Now client: " << req.node_id << std::endl;
   for (int i = 0; i < id_table.size(); i++){
     std::cout << id_table[i] << " " << pos_x_table[i] << " " << pos_y_table[i] << std::endl;
   } 

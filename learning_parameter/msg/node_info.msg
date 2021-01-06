@@ -1,1 +1,1 @@
-int64 num_node
+float64[] ad_info

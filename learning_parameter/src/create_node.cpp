@@ -1,7 +1,23 @@
+// AUTHOR: LeMonMOn
+// UPDATE: 2021/01/07
+// DESCRIPTION: This code is to simulating "nodes" movements in 2 dimensions spaces with
+// random-walking. If there are 2 nodes distanced less than MAX_DIST, they will add each
+// other to their own neigh_list. The nodes periodicly publish thier id and position to
+// the controller, and by the way request a service to find out its neighbour. And the 
+// controller collects information and judge the neighbours. This is the create node code.
+// NOTE: This code ONLY allows you to to input arguments with continous series, such as
+// rosrun learning_parameter create_node 1
+// rosrun learning_parameter create_node 2
+// rosrun learning_parameter create_node 3
+// ...
+// in every terminal. Otherwise, there is unexpected problem!
+
+
 #include "ros/ros.h"
-#include "std_msgs/Float64MultiArray.h"
+// TO USE THIS, YOU SHOULD CONFIG THE INCLUDE PATH WITH YOUR SYSTEM
 #include "/home/lemonmon/catkin_ws/src/learning_parameter/src/Node.h"
 
+#include "learning_parameter/node_info.h"
 #include "learning_parameter/chk.h"
 
 #include <sstream>
@@ -10,7 +26,6 @@
 
 
 #define RANDOM(a, b) (a + (b - a)*(double)std::rand()/RAND_MAX)
-
 
 int main(int argc, char** argv){
   if (argc != 2){
@@ -38,7 +53,7 @@ int main(int argc, char** argv){
 
   ros::NodeHandle n;
   ros::ServiceClient clt = n.serviceClient<learning_parameter::chk>(srv_name.str());
-  ros::Publisher pub = n.advertise<std_msgs::Float64MultiArray>(ad_name.str(), 1000);
+  ros::Publisher pub = n.advertise<learning_parameter::node_info>(ad_name.str(), 1000);
 
   learning_parameter::chk srv;
   srv.request.node_id = Node_id;
@@ -56,8 +71,8 @@ int main(int argc, char** argv){
     my_Node.set_pos_y(my_Node.get_pos_y() + y_vel);
     std::vector<double> now_pos{(double)my_Node.get_Node_id(), my_Node.get_pos_x(), my_Node.get_pos_y()};
 
-    std_msgs::Float64MultiArray pos_info;
-    pos_info.data = now_pos;
+    learning_parameter::node_info pos_info;
+    pos_info.ad_info = now_pos;
 
     pub.publish(pos_info);
     
