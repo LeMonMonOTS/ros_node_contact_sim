@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation # for msg using
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -86,11 +87,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the "generate_dynamic_reconfigure_options" section below
 ##     and list every .cfg file to be processed
 
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+# Generate dynamic reconfigure parameters in the 'cfg' folder
+ generate_dynamic_reconfigure_options(
+   cfg/param.cfg
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -212,3 +212,5 @@ add_dependencies(create_node learning_parameter_generate_messages_cpp)
 add_executable(controller src/controller.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 add_dependencies(controller learning_parameter_generate_messages_cpp)
+
+add_dependencies(controller learning_parameter_gencfg)

@@ -1,5 +1,6 @@
 // AUTHOR: LeMonMOn
-// UPDATE: 2021/01/07
+// UPDATE: 2021/01/08
+// UPDATE_NOTE: Add dynamic parameter.
 // DESCRIPTION: This code is to simulating "nodes" movements in 2 dimensions spaces with
 // random-walking. If there are 2 nodes distanced less than MAX_DIST, they will add each
 // other to their own neigh_list. The nodes periodicly publish thier id and position to
@@ -15,12 +16,14 @@
 
 #include "learning_parameter/node_info.h"
 #include "learning_parameter/chk.h"
+#include "dynamic_reconfigure/server.h"
+#include "learning_parameter/try_dyparamConfig.h"
 
 #include <sstream>
 #include <vector>
 
 
-#define MAX_DIST2 9
+double MAX_DIST2 = 99999;
 
 
 std::vector<int> id_table;
@@ -95,6 +98,11 @@ bool check_callback(learning_parameter::chk::Request& req,
 }
 
 
+void para_callback(learning_parameter::try_dyparamConfig& config, uint32_t level){
+  MAX_DIST2 = config.double_param;
+  std::cout << "Now max_distance^2=" << config.double_param << std::endl; 
+}
+
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "controller");
@@ -115,6 +123,12 @@ int main(int argc, char** argv){
     subs.push_back(n.subscribe(tpc_name.str(), 1000, sub_callback));
     clts.push_back(n.advertiseService(srv_name.str(), check_callback));
   }
+
+  dynamic_reconfigure::Server<learning_parameter::try_dyparamConfig> para_ser;
+  dynamic_reconfigure::Server<learning_parameter::try_dyparamConfig>::CallbackType para_f;
+
+  para_f = boost::bind(&para_callback, _1, _2);
+  para_ser.setCallback(para_f);
 
   ros::spin();
 
